@@ -1,0 +1,34 @@
+{
+
+    "chartCaption" : "MyCaption",
+    "chartSubCaption" : " MySubCaption",
+
+    "xAxisLabel" : "baseStamp",
+    "yAxisLabel" : ["yAxisLabel1","yAxisLabel2","yAxisLabel3"],
+
+    "xdata": [{
+            "xlabel": "stamplabel-value1"
+        },{
+            "xlabel": "stamplabel-value2"
+        },{
+            "xlabel": "stamplabel-value3"
+        },{
+            "xlabel": "stamplabel-value4"
+    }],
+
+
+    "ydata": [
+        {
+            "yvalue" : ["number1","number2","number3"]
+        },
+        {
+            "yvalue" : ["number1","number2","number3"]
+        },
+        {
+            "yvalue" : ["number1","number2","number3"]
+        },
+        {
+            "yvalue" : ["number1","number2","number3"]
+        }
+    ]
+}
