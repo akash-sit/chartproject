@@ -1,33 +1,8 @@
 <html>
    <head>
-      <script type="text/javascript">
+      <script src="charts.js">
       
-        var xmlhttp = new XMLHttpRequest(),json;
 
-        xmlhttp.onreadystatechange = function() {
-            if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-              json = JSON.parse(xmlhttp.responseText);
-              console.log(xmlhttp.responseText);
-              console.log(json);
-              document.write('The caption of the chart is : ' + json.chartCaption + '<br>');
-              document.write('The caption of the chart is : ' + json.chartSubCaption + '<br><br>');
-              document.write('The x-axis label of the chart is : ' + json.xAxisLabel + '<br>');
-              document.write('The x-values for<b> all the charts</b> : ' + json.xydata[0].xlabel + '    ' + json.xydata[1].xlabel + '    ' + json.xydata[2].xlabel + '<br><br>');
-
-              document.write('The y-axis label of the chart1 is : ' + json.yAxisLabel[0] + '<br>');
-              document.write('The y-axis values are : ' + json.xydata[0].yvalues[0] + '    ' + json.xydata[1].yvalues[0] + '    ' + json.xydata[2].yvalues[0] + '    ' + json.xydata[3].yvalues[0] + '<br><br>');
-
-              document.write('The y-axis label of the chart2 is : ' + json.yAxisLabel[1] + '<br>');
-              document.write('The y-axis values are : ' + json.xydata[0].yvalues[1] + '    ' + json.xydata[1].yvalues[1] + '    ' + json.xydata[2].yvalues[1] + '    ' + json.xydata[3].yvalues[1] + '<br><br>');
-
-              document.write('The y-axis label of the chart3 is : ' + json.yAxisLabel[2] + '<br>');
-              document.write('The y-axis values are : ' + json.xydata[0].yvalues[2] + '    ' + json.xydata[1].yvalues[2] + '    ' + json.xydata[2].yvalues[2] + '    ' + json.xydata[3].yvalues[2] + '<br>');
-            }
-        }
-
-        xmlhttp.open('GET','structure.json',true);
-        xmlhttp.send();
-      
       
       </script>
    
@@ -38,9 +13,11 @@
       <h1>Chart Details</h1>
       
      
+      
+      
+      <br><br><br><br>
+      <div id="showData"></div>
 
-      
-      
    </body>
       
 </html>
