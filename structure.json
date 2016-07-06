@@ -1,34 +1,22 @@
 {
 
-    "chartCaption" : "MyCaption",
+    "chartCaption" : "Comparision Chart",
     "chartSubCaption" : " MySubCaption",
 
-    "xAxisLabel" : "baseStamp",
-    "yAxisLabel" : ["yAxisLabel1","yAxisLabel2","yAxisLabel3"],
+    "xAxisLabel" : "seconds",
+    "yAxisLabel" : ["speed","accelaration","torque","velocity"],
 
-    "xdata": [{
-            "xlabel": "stamplabel-value1"
-        },{
-            "xlabel": "stamplabel-value2"
-        },{
-            "xlabel": "stamplabel-value3"
-        },{
-            "xlabel": "stamplabel-value4"
-    }],
-
+    "xdata" : [10,20,30,40],
 
     "ydata": [
         {
-            "yvalue" : ["number1","number2","number3"]
-        },
-        {
-            "yvalue" : ["number1","number2","number3"]
-        },
-        {
-            "yvalue" : ["number1","number2","number3"]
-        },
-        {
-            "yvalue" : ["number1","number2","number3"]
+            "yvalues" : ["120","122","121","127"]
+        },{
+            "yvalues" : ["24","23","29","28"]
+        },{
+            "yvalues" : ["74","73","72","71"]
+        },{
+            "yvalues" : ["4","3","2","1"]
         }
     ]
 }
