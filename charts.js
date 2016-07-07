@@ -21,6 +21,20 @@ var chartyAxis = function(a,b,min,max)
   this.min=min;
   this.max=max;
   this.range=max - min;
+  this.cmin=0;
+  this.cmax=0;
+  this.cdiv=0;
+}
+
+function cal_min_max(charty)
+{
+  
+  var pad = Math.ceil((5 * charty.range) / 100);
+  charty.cmin = parseFloat(charty.min) - pad;
+  charty.cmax = parseFloat(charty.max) + pad;
+  charty.cdiv = Math.ceil((20 * (charty.cmax - charty.cmin)) / 100);
+  console.log("Calculated min max : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv + "    " + pad);
+  console.log("And then : " + typeof(charty.range));
 }
 
 function loadChartData()
@@ -88,6 +102,10 @@ function loadChartData()
           console.log(charts);
 
           //call functions
+          cal_min_max(charts[0]);
+          cal_min_max(charts[1]);
+          cal_min_max(charts[2]);
+          cal_min_max(charts[3]);
         }
     }
 }
