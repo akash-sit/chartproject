@@ -26,6 +26,165 @@ var chartyAxis = function(a,b,min,max)
   this.cdiv=0;
 }
 
+function drawChart(chartx,charts)
+{
+  var svgns = "http://www.w3.org/2000/svg";
+  var ix;
+  var jump = 500/chartx.no_ticks;
+  var jx = 0;
+
+  var iy;
+  var jumpy = 200/Math.ceil((charts.cmax - charts.min) / charts.cdiv) + 1;
+  var jy = 280;
+
+  var yval = charts.value.yvalues;
+  var exteremeypix;
+  var pxrange;
+
+  //console.log("jump x : " + jump);
+  //console.log("jump y : " + jumpy);
+  //console.log("y values : " + yval);
+
+  //for(i = 0 ; i <)
+
+  var svg = document.createElementNS(svgns, "svg");
+  svg.setAttributeNS(null,"height","340");
+  svg.setAttributeNS(null,"width","700");
+
+  var xline = document.createElementNS(svgns, "line");
+  xline.setAttribute("x1", 50);
+  xline.setAttribute("y1", 260);
+  xline.setAttribute("x2", 550);
+  xline.setAttribute("y2", 260);
+  xline.setAttribute("stroke", "#4d4d33");
+
+  var yline = document.createElementNS(svgns, "line");
+  yline.setAttribute("x1", 50);
+  yline.setAttribute("y1", 260);
+  yline.setAttribute("x2", 50);
+  yline.setAttribute("y2", 2);
+  yline.setAttribute("stroke", "#003d99");
+
+  /*var plot = document.createElementNS(svgns, "circle");
+          plot.setAttribute("cx", 125);
+          plot.setAttribute("cy", 229);
+          plot.setAttribute("r", 5);
+          plot.setAttribute("fill", "green");
+          plot.setAttribute("stroke", "green");
+          svg.appendChild(plot);*/
+
+  
+  for(iy = 0 ; iy <= Math.ceil((charts.cmax - charts.min) / charts.cdiv) ; iy++)
+  {
+          var min = charts.cmin;
+          var add = charts.cdiv;
+          
+          var ytick = document.createElementNS(svgns, "line");
+          ytick.setAttribute("x1", 50);
+          ytick.setAttribute("y1", jy-jumpy);
+          ytick.setAttribute("x2", 45);
+          ytick.setAttribute("y2", jy-jumpy);
+          ytick.setAttribute("stroke", "green");
+          svg.appendChild(ytick);
+
+          var divline = document.createElementNS(svgns, "line");
+          divline.setAttribute("x1", 50);
+          divline.setAttribute("y1", jy-jumpy);
+          divline.setAttribute("x2", 550);
+          divline.setAttribute("y2", jy-jumpy);
+          divline.setAttribute("stroke", "#e6ccb3");
+          svg.appendChild(divline);
+
+          var text = document.createElementNS(svgns, "text");
+          text.setAttribute('x', 40);
+          text.setAttribute('y', jy-jumpy);
+          text.setAttribute('fill', '#000');
+          text.setAttribute("text-anchor", "end");
+          text.textContent = min + (add * iy);
+          svg.appendChild(text);
+
+          exteremeypix = jy - jumpy;
+          jy -= jumpy;
+
+
+  }
+
+  jy = 230;
+
+  pxrange = jy - exteremeypix;
+  valrange = charts.cmax - charts.cmin;
+  scale = pxrange / valrange;
+
+  var prevx = 0;
+  var prevy = 0;
+
+  console.log("range : " + pxrange);
+  console.log("val range : " + valrange + "    " +  "scale : " + scale);
+  //X-Axis ticks
+  for(ix = 0 ; ix < chartx.no_ticks ; ix++)
+  {
+          
+
+          var xtick = document.createElementNS(svgns, "line");
+          xtick.setAttribute("x1", jx+jump);
+          xtick.setAttribute("y1", 260);
+          xtick.setAttribute("x2", jx+jump);
+          xtick.setAttribute("y2", 265);
+          xtick.setAttribute("stroke", "#140d06");
+          svg.appendChild(xtick);
+
+          var point = document.createElementNS(svgns, "circle");
+          point.setAttribute("cx", jx+jump);
+          point.setAttribute("cy", jy - (yval[ix] - charts.cmin) * scale);
+          point.setAttribute("r", 5);
+          point.setAttribute("fill", "green");
+          point.setAttribute("stroke", "#140d06");
+          svg.appendChild(point);
+
+          if(prevx != 0 && prevy != 0)
+          {
+            var connect = document.createElementNS(svgns, "line");
+            connect.setAttribute("x1", prevx);
+            connect.setAttribute("y1", prevy);
+            connect.setAttribute("x2", jx+jump);
+            connect.setAttribute("y2", jy - (yval[ix] - charts.cmin) * scale);
+            connect.setAttribute("stroke", "green");
+            svg.appendChild(connect);
+          }
+
+          var text = document.createElementNS(svgns, "text");
+          text.setAttribute('x', jx+jump);
+          text.setAttribute('y', 280);
+          text.setAttribute('fill', '#000');
+          text.setAttribute("text-anchor"," middle");
+          text.textContent = chartx.value[ix];
+          svg.appendChild(text);
+
+          prevx = jx+jump;
+          prevy = jy - (yval[ix] - charts.cmin) * scale;
+
+          jx += jump;
+  }
+
+  //var shape = document.createElementNS(svgns, "div");
+  
+  /*var shape = document.createElementNS(svgns, "circle");
+  shape.setAttribute("cx", 100);
+  shape.setAttribute("cy", 100);
+  shape.setAttribute("r",  100);
+  shape.setAttribute("fill", "green");*/
+
+  svg.appendChild(xline);
+  svg.appendChild(yline);
+  //svg.appendChild(xtick);
+
+  var myDiv = document.createElement("div");
+  //myDiv.setAttribute("id","div1");
+  myDiv.appendChild(svg);
+  //document.getElementById("div1").appendChild(svg);
+  document.getElementById("chart-container").appendChild(myDiv);
+}
+
 function cal_min_max(charty)
 {
   
@@ -44,10 +203,10 @@ function loadChartData()
         if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
           json = JSON.parse(xmlhttp.responseText);
 
-          console.log("Actual json");
-          console.log(xmlhttp.responseText);
-          console.log("Fetched json");
-          console.log(json);
+          //console.log("Actual json");
+          //console.log(xmlhttp.responseText);
+          //console.log("Fetched json");
+          //console.log(json);
 
           var data = document.getElementById("showData");
 
@@ -102,10 +261,19 @@ function loadChartData()
           console.log(charts);
 
           //call functions
-          cal_min_max(charts[0]);
-          cal_min_max(charts[1]);
-          cal_min_max(charts[2]);
-          cal_min_max(charts[3]);
+          for(i = 0 ; i < no_charts ; i++)
+          {
+                  cal_min_max(charts[i]);
+                  drawChart(chartx,charts[i]);
+          }
+          //cal_min_max(charts[1]);
+          //cal_min_max(charts[2]);
+          //cal_min_max(charts[3]);
+          //plot(chartx,charts[0]);
+          
+          //drawChart(chartx,charts[1]);
+          //drawChart(chartx,charts[2]);
+          //drawChart(chartx,charts[3]);
         }
     }
 }
