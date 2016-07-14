@@ -26,6 +26,8 @@ var chartyAxis = function(a,b,min,max)
   this.cdiv=0;
 }
 
+
+
 function drawChart(chartx,charts,index,no_charts)
 {
   var svgns = "http://www.w3.org/2000/svg";
@@ -53,6 +55,7 @@ function drawChart(chartx,charts,index,no_charts)
   svglabel.setAttributeNS(null,"width","40");
 
   var text = document.createElementNS(svgns, "text");
+  text.setAttribute("class","yaxislabels");
   text.setAttribute('x', 30);
   text.setAttribute('y', 150);
   text.setAttribute('fill', '#0000ff');
@@ -63,9 +66,10 @@ function drawChart(chartx,charts,index,no_charts)
 
   var svg = document.createElementNS(svgns, "svg");
   svg.setAttributeNS(null,"height","340");
-  svg.setAttributeNS(null,"width","700");
+  svg.setAttributeNS(null,"width","554");
 
   var xline = document.createElementNS(svgns, "line");
+  xline.setAttribute("class","xaxis");
   xline.setAttribute("x1", 50);
   xline.setAttribute("y1", jy);
   xline.setAttribute("x2", 550);
@@ -75,6 +79,7 @@ function drawChart(chartx,charts,index,no_charts)
   if(index == no_charts - 1)
   {
   var text = document.createElementNS(svgns, "text");
+  text.setAttribute("class","xaxislabels");
   text.setAttribute('x', 300);
   text.setAttribute('y', 340);
   text.setAttribute('fill', '#0000ff');
@@ -84,6 +89,7 @@ function drawChart(chartx,charts,index,no_charts)
   }
 
   var yline = document.createElementNS(svgns, "line");
+  yline.setAttribute("class","yaxis");
   yline.setAttribute("x1", 50);
   yline.setAttribute("y1", jy);
   yline.setAttribute("x2", 50);
@@ -102,6 +108,7 @@ function drawChart(chartx,charts,index,no_charts)
           var add = charts.cdiv;
           
           var ytick = document.createElementNS(svgns, "line");
+          ytick.setAttribute("class","yticks");
           ytick.setAttribute("x1", 50);
           ytick.setAttribute("y1", jy-jumpy*iy);
           ytick.setAttribute("x2", 45);
@@ -110,6 +117,7 @@ function drawChart(chartx,charts,index,no_charts)
           svg.appendChild(ytick);
 
           var divline = document.createElementNS(svgns, "line");
+          divline.setAttribute("class","divlines");
           divline.setAttribute("x1", 50);
           divline.setAttribute("y1", jy-jumpy*iy);
           divline.setAttribute("x2", 550);
@@ -118,6 +126,7 @@ function drawChart(chartx,charts,index,no_charts)
           svg.appendChild(divline);
 
           var text = document.createElementNS(svgns, "text");
+          text.setAttribute("class","ylabels");
           text.setAttribute('x', 40);
           text.setAttribute('y', jy-jumpy*iy);
           text.setAttribute('fill', '#000');
@@ -154,6 +163,7 @@ function drawChart(chartx,charts,index,no_charts)
           
           console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
           var xtick = document.createElementNS(svgns, "line");
+          xtick.setAttribute("class","xticks");
           xtick.setAttribute("x1", jx+jump*ix);
           xtick.setAttribute("y1", jy);
           xtick.setAttribute("x2", jx+jump*ix);
@@ -162,6 +172,7 @@ function drawChart(chartx,charts,index,no_charts)
           svg.appendChild(xtick);
 
           var point = document.createElementNS(svgns, "circle");
+          point.setAttribute("class","plotpoints");
           point.setAttribute("cx", jx+jump*ix);
           point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
           point.setAttribute("r", 5);
@@ -175,6 +186,7 @@ function drawChart(chartx,charts,index,no_charts)
           if(prevx != 0 && prevy != 0)
           {
             var connect = document.createElementNS(svgns, "line");
+            connect.setAttribute("class","connects");
             connect.setAttribute("x1", prevx);
             connect.setAttribute("y1", prevy);
             connect.setAttribute("x2", jx+jump*ix);
@@ -186,6 +198,7 @@ function drawChart(chartx,charts,index,no_charts)
           if(index == no_charts - 1)
           {
             var text = document.createElementNS(svgns, "text");
+            text.setAttribute("class","xlabels");
           text.setAttribute('x', jx+jump*ix);
           text.setAttribute('y', jy+20);
           text.setAttribute('fill', '#000');
@@ -204,6 +217,8 @@ function drawChart(chartx,charts,index,no_charts)
 
   svg.appendChild(xline);
   svg.appendChild(yline);
+
+  
   //svg.appendChild(xtick);
 
   var myDiv = document.createElement("div");
@@ -238,12 +253,13 @@ function cal(charty)
     charty.cmin = Math.floor(charty.min / 10.0) * 10;
     charty.cmax = Math.ceil(charty.max / 10.0) * 10;
     charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
+    console.log(">=5");
     }
     if(r < 5)
     {
-    charty.cmin = (Math.floor(charty.min / 1.0) * 1) - 1;
+    charty.cmin = (Math.floor(charty.min / 1.0) * 1);
     charty.cmax = Math.ceil(charty.max / 1.0) * 1;
-    charty.cdiv = 1;
+    charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
     console.log("cmin : " + charty.cmin);
     console.log("cmax : " + charty.cmax);
     console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
@@ -370,6 +386,9 @@ function loadChartData()
                   cal(charts[i]);
                   drawChart(chartx,charts[i],i,no_charts);
           }
+
+          //document.getElementById("cap").addEventListener("mousemove",myMove);
+          //document.getElementById("cap").addEventListener("mouseleave",myLeave);
         }
     }
 }

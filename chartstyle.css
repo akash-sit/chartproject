@@ -2,4 +2,71 @@
 
       
       color: red;
+}
+
+
+#subcap {
+
+      
+      color: brown;
+}
+
+
+.xaxis {
+
+      
+      stroke: #4d4d33;
+}
+.yaxis {
+
+      
+      stroke: #003d99;
+}
+
+.xaxislabels {
+
+		fill: green;
+}
+
+.yaxislabels {
+
+		fill: brown;
+}
+
+
+.xticks {
+
+      
+      stroke: #4d4d33;
   }
+.yticks {
+
+      
+      stroke: #4d4d33;
+}
+
+
+.xlabels {
+
+      
+      fill: #990000;
+}
+.ylabels {
+
+      
+      fill: #990000;
+}
+
+
+.plotpoints {
+
+      stroke: #4d4d33;
+      fill: #990000;
+}
+
+
+.connects {
+
+      
+      stroke: green;
+}
