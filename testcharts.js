@@ -58,7 +58,7 @@ function drawChart(chartx,charts,chartnames)
   text.setAttribute('fill', '#0000ff');
   text.setAttribute("text-anchor"," middle");
   text.textContent = charts.label;
-  text.transform="rotate(30 20,40)";
+  text.transform="rotate(270 30,150)";
   svglabel.appendChild(text);
 
   var svg = document.createElementNS(svgns, "svg");
@@ -84,7 +84,7 @@ function drawChart(chartx,charts,chartnames)
   yline.setAttribute("x1", 50);
   yline.setAttribute("y1", 290);
   yline.setAttribute("x2", 50);
-  yline.setAttribute("y2", 20);
+  yline.setAttribute("y2", 5);
   yline.setAttribute("stroke", "#003d99");
 
   pxrange = firstypix - exteremeypix;
@@ -93,10 +93,10 @@ function drawChart(chartx,charts,chartnames)
   console.log("y repeat : " + Math.ceil((charts.cmax - charts.cmin) / charts.cdiv));
 
   
-  for(iy = 0 ; iy <= Math.ceil((charts.cmax - charts.cmin) / charts.cdiv) ; iy++)
+  for(iy = 0 ; iy <= Math.floor((charts.cmax - charts.cmin) / charts.cdiv) ; iy++)
   {
           var min = parseFloat(charts.cmin);
-          var add = Math.ceil(charts.cdiv);
+          var add = charts.cdiv;
           
           var ytick = document.createElementNS(svgns, "line");
           ytick.setAttribute("x1", 50);
@@ -161,9 +161,12 @@ function drawChart(chartx,charts,chartnames)
           var point = document.createElementNS(svgns, "circle");
           point.setAttribute("cx", jx+jump);
           point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
-          point.setAttribute("r", 2);
-          point.setAttribute("fill", "green");
-          point.setAttribute("stroke", "#140d06");
+          point.setAttribute("r", 5);
+          point.setAttribute("fill", "#990000");
+          point.setAttribute("stroke", "green");
+          var title = document.createElementNS(svgns, "title");
+          title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
+          point.appendChild(title);
           svg.appendChild(point);
 
           if(prevx != 0 && prevy != 0)
@@ -213,7 +216,26 @@ function cal(charty)
   var low;
   var res;
   console.log("r : " + r + "range : " + charty.range);
-  if(Math.log(r) / Math.log(10) < 2)
+  if(Math.log(r) / Math.log(10) < 1)
+  {
+    if(r >= 5)
+    {
+    charty.cmin = Math.floor(charty.min / 10.0) * 10;
+    charty.cmax = Math.ceil(charty.max / 10.0) * 10;
+    charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
+    }
+    if(r < 5)
+    {
+    charty.cmin = Math.floor(charty.min / parseFloat(Math.ceil(r))) * Math.ceil(r);
+    charty.cmax = Math.ceil(charty.max / parseFloat(Math.ceil(r))) * Math.ceil(r);
+    charty.cdiv = (charty.cmax - charty.cmin) / 2;
+    console.log("cmin : " + charty.cmin);
+    console.log("cmax : " + charty.cmax);
+    console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
+    console.log("cdiv : " + charty.cdiv);
+    }
+  }
+  else if(Math.log(r) / Math.log(10) < 2)
   {
     charty.cmin = Math.floor(charty.min / 10.0) * 10;
     charty.cmax = Math.ceil(charty.max / 10.0) * 10;
