@@ -26,13 +26,57 @@ var chartyAxis = function(a,b,min,max)
   this.cdiv=0;
 }
 
+function myEnter(event)
+{
+  var svgns = "http://www.w3.org/2000/svg";
+  
+  console.log("inside enter event.");
+  var ch = document.createElementNS(svgns, "line");
+  ch.setAttribute("class","crosshair");
+  ch.setAttribute("id","crosshair");
+  ch.setAttribute("x1", event.clientX - 180);
+  ch.setAttribute("y1", 300);
+  ch.setAttribute("x2", event.clientX - 180);
+  ch.setAttribute("y2", 15);
+  ch.setAttribute("stroke", "#4d4d33");
 
+  this.appendChild(ch);
+}
+
+function myMove(event)
+{
+  // console.log(this);
+  // console.log(event);
+  var svgns = "http://www.w3.org/2000/svg";
+  var ch = document.getElementById("crosshair");
+
+  if(event.clientX - 491 > 51)
+  {
+    ch.setAttribute("x1", event.clientX - 491);
+    ch.setAttribute("y1", 300);
+    ch.setAttribute("x2", event.clientX - 491);
+    ch.setAttribute("y2", 15);
+    ch.setAttribute("stroke", "#4d4d33");
+  }
+}
+
+function myLeave(event)
+{
+  console.log(event);
+  //alert("hello leave");
+
+  var svgns = "http://www.w3.org/2000/svg";
+  var ch = document.getElementById("crosshair");
+
+  // var ch = document.createElementNS(svgns, "line");
+  this.removeChild(ch);  
+}
 
 function drawChart(chartx,charts,index,no_charts)
 {
   var svgns = "http://www.w3.org/2000/svg";
   var ix;
-  var jump = 500/chartx.no_ticks;
+  var jump = 500/(chartx.no_ticks - 1);
   var jx = 50;
 
   var iy;
@@ -66,7 +110,7 @@ function drawChart(chartx,charts,index,no_charts)
 
   var svg = document.createElementNS(svgns, "svg");
   svg.setAttributeNS(null,"height","340");
-  svg.setAttributeNS(null,"width","554");
+  svg.setAttributeNS(null,"width","552");
 
   var xline = document.createElementNS(svgns, "line");
   xline.setAttribute("class","xaxis");
@@ -78,14 +122,14 @@ function drawChart(chartx,charts,index,no_charts)
 
   if(index == no_charts - 1)
   {
-  var text = document.createElementNS(svgns, "text");
-  text.setAttribute("class","xaxislabels");
-  text.setAttribute('x', 300);
-  text.setAttribute('y', 340);
-  text.setAttribute('fill', '#0000ff');
-  text.setAttribute("text-anchor"," middle");
-  text.textContent = chartx.label;
-  svg.appendChild(text);
+    var text = document.createElementNS(svgns, "text");
+    text.setAttribute("class","xaxislabels");
+    text.setAttribute('x', 300);
+    text.setAttribute('y', 340);
+    text.setAttribute('fill', '#0000ff');
+    text.setAttribute("text-anchor"," middle");
+    text.textContent = chartx.label;
+    svg.appendChild(text);
   }
 
   var yline = document.createElementNS(svgns, "line");
@@ -139,8 +183,6 @@ function drawChart(chartx,charts,index,no_charts)
 
           exteremeypix = jy - jumpy * iy;
           //jy -= jumpy;
-
-
   }
 
   jy = firstypix;
@@ -159,8 +201,7 @@ function drawChart(chartx,charts,index,no_charts)
   console.log("val range : " + valrange + "    " +  "scale : " + scale);
   //X-Axis ticks
   for(ix = 0 ; ix < chartx.no_ticks ; ix++)
-  {
-          
+  {      
           console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
           var xtick = document.createElementNS(svgns, "line");
           xtick.setAttribute("class","xticks");
@@ -199,15 +240,13 @@ function drawChart(chartx,charts,index,no_charts)
           {
             var text = document.createElementNS(svgns, "text");
             text.setAttribute("class","xlabels");
-          text.setAttribute('x', jx+jump*ix);
-          text.setAttribute('y', jy+20);
-          text.setAttribute('fill', '#000');
-          text.setAttribute("text-anchor"," middle");
-          text.textContent = chartx.value[ix];
-          svg.appendChild(text);
+            text.setAttribute('x', jx+jump*ix);
+            text.setAttribute('y', jy+20);
+            text.setAttribute('fill', '#000');
+            text.setAttribute("text-anchor"," middle");
+            text.textContent = chartx.value[ix];
+            svg.appendChild(text);
           }
-
-          
 
           prevx = jx+jump*ix;
           prevy = parseInt(jy - (yval[ix] - charts.cmin) * scale);
@@ -218,8 +257,9 @@ function drawChart(chartx,charts,index,no_charts)
   svg.appendChild(xline);
   svg.appendChild(yline);
 
-  
-  //svg.appendChild(xtick);
+  svg.addEventListener("mouseleave",myLeave);
+  svg.addEventListener("mousemove",myMove);
+  svg.addEventListener("mouseenter",myEnter);
 
   var myDiv = document.createElement("div");
   //myDiv.appendChild("hi");
@@ -244,26 +284,26 @@ function cal(charty)
     if(r == 0.0)
     {
       charty.cmin = Math.floor(charty.min);
-    charty.cmax = Math.ceil(charty.max) + 1;
-    charty.cdiv = 1;
-    console.log("inside zero checking snippet");
+      charty.cmax = Math.ceil(charty.max) + 1;
+      charty.cdiv = 1;
+      console.log("inside zero checking snippet");
     }
     if(r >= 5)
     {
-    charty.cmin = Math.floor(charty.min / 10.0) * 10;
-    charty.cmax = Math.ceil(charty.max / 10.0) * 10;
-    charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
-    console.log(">=5");
+      charty.cmin = Math.floor(charty.min / 10.0) * 10;
+      charty.cmax = Math.ceil(charty.max / 10.0) * 10;
+      charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
+      console.log(">=5");
     }
     if(r < 5)
     {
-    charty.cmin = (Math.floor(charty.min / 1.0) * 1);
-    charty.cmax = Math.ceil(charty.max / 1.0) * 1;
-    charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
-    console.log("cmin : " + charty.cmin);
-    console.log("cmax : " + charty.cmax);
-    console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
-    console.log("cdiv : " + charty.cdiv);
+      charty.cmin = (Math.floor(charty.min / 1.0) * 1);
+      charty.cmax = Math.ceil(charty.max / 1.0) * 1;
+      charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
+      console.log("cmin : " + charty.cmin);
+      console.log("cmax : " + charty.cmax);
+      console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
+      console.log("cdiv : " + charty.cdiv);
     }
   }
   else if(Math.log(r) / Math.log(10) < 2)
@@ -296,8 +336,7 @@ function cal(charty)
     charty.cmax = Math.ceil(charty.max / 100000.0) * 100000;
     charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
   }
-  //charty.range = res;
-
+  
   console.log("range charts : " + charty.range);
   console.log("Calculated min max div : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv);
 }
