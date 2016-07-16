@@ -14,59 +14,79 @@
 
 .xaxis {
 
-      
-      stroke: #4d4d33;
+      stroke: #e6e6e6;
+      stroke-width: 2;
 }
 .yaxis {
 
-      
-      stroke: #003d99;
+      stroke: #e6e6e6;
+      stroke-width: 2;    
 }
 
 .xaxislabels {
 
-		fill: green;
+		fill: #0d0d0d;
 }
 
 .yaxislabels {
 
-		fill: brown;
+		fill: #0d0d0d;
 }
 
 
 .xticks {
-
       
       stroke: #4d4d33;
   }
 .yticks {
-
       
       stroke: #4d4d33;
 }
 
 
 .xlabels {
-
       
-      fill: #990000;
+      fill: #0d0d0d;
 }
 .ylabels {
 
-      
-      fill: #990000;
+      fill: #0d0d0d;
 }
 
 
-.plotpoints {
+.divlines {
 
-      stroke: #4d4d33;
-      fill: #990000;
+	  stroke: #e6e6e6;
+      stroke-width: 1;
 }
 
 
 .connects {
 
-      
-      stroke: green;
+      stroke: #3333ff;
+      stroke-width: 6;
+      stroke-linejoin: round;
+}
+
+
+.plotpoints {
+
+      stroke: #3333ff;
+      fill: #ffffff;
+}
+
+
+.crosshair1 {
+
+	  stroke: #ff3333;
+	  border-style: dashed;
+	  stroke-dasharray: 3,3;
+}
+
+
+.synccrosshair {
+
+	  stroke: #ff3333;
+	  border-style: dashed;
+	  stroke-dasharray: 3,3;
 }
