@@ -26,21 +26,92 @@ var chartyAxis = function(a,b,min,max)
   this.cdiv=0;
 }
 
+//Listener Functions
+
+function syncEnterFunction(e)
+{
+  console.log("Calling custom event");
+
+  var svgns = "http://www.w3.org/2000/svg";
+
+  // var ch = document.getElementById("crosshair");
+  var ch = document.createElementNS(svgns, "line");
+  ch.setAttribute("class","synccrosshair");
+  ch.setAttribute("id","synccrosshair");
+  ch.setAttribute("x1", e.detail.x - 50);
+  ch.setAttribute("y1", 300);
+  ch.setAttribute("x2", e.detail.x - 50);
+  ch.setAttribute("y2", 15);
+  ch.setAttribute("stroke", "#4d4d33");
+  
+
+  e.currentTarget.appendChild(ch);
+  console.log("ch : ", e.currentTarget);
+  //debugger;   
+}
+
 function myEnter(event)
 {
   var svgns = "http://www.w3.org/2000/svg";
+
+  var syncEventEnter = new CustomEvent('syncEnter',
+  {
+      'detail': {
+        x : event.clientX,
+        y : event.clientY
+      }
+  });
   
   console.log("inside enter event.");
+
   var ch = document.createElementNS(svgns, "line");
-  ch.setAttribute("class","crosshair");
-  ch.setAttribute("id","crosshair");
-  ch.setAttribute("x1", event.clientX - 180);
+  ch.setAttribute("class","crosshair1");
+  ch.setAttribute("id","crosshair1");
+  ch.setAttribute("x1", event.clientX - 50);
   ch.setAttribute("y1", 300);
-  ch.setAttribute("x2", event.clientX - 180);
+  ch.setAttribute("x2", event.clientX - 50);
   ch.setAttribute("y2", 15);
   ch.setAttribute("stroke", "#4d4d33");
 
-  this.appendChild(ch);
+  console.log("this is : ", event.currentTarget);
+  event.currentTarget.appendChild(ch);
+
+  var svglist = document.getElementsByClassName("chartsvg");
+  console.log(svglist);
+
+  var svg;
+  for(svg of svglist)
+  {
+    console.log(svg);
+    if(event.currentTarget != svg)
+      svg.dispatchEvent(syncEventEnter);
+  }
+  //document.body.dispatchEvent(syncEvent);
+}
+
+function syncMoveFunction(e)
+{
+  console.log("syn move function");
+
+  var svgns = "http://www.w3.org/2000/svg";
+
+  //var ch = document.getElementsByClassName("synccrosshair");
+  var c = document.getElementsByClassName("synccrosshair");
+
+  console.log("move event crosshair : ", c);
+  // var ch = document.createElementNS(svgns, "line");
+  for(ch of c)
+  {
+    //if(event.clientX - 50 > 51)
+    //{
+      ch.setAttribute("x1", e.detail.x - 50);
+      ch.setAttribute("y1", 300);
+      ch.setAttribute("x2", e.detail.x - 50);
+      ch.setAttribute("y2", 15);
+      ch.setAttribute("stroke", "#4d4d33");
+      //e.currentTarget.appendChild(c);
+    //}
+  }
 }
 
 function myMove(event)
@@ -48,30 +119,87 @@ function myMove(event)
   // console.log(this);
   // console.log(event);
   var svgns = "http://www.w3.org/2000/svg";
-  var ch = document.getElementById("crosshair");
+  var ch = document.getElementById("crosshair1");
 
-  if(event.clientX - 491 > 51)
+  if(event.clientX - 50 > 51)
   {
-    ch.setAttribute("x1", event.clientX - 491);
+    ch.setAttribute("x1", event.clientX - 50);
     ch.setAttribute("y1", 300);
-    ch.setAttribute("x2", event.clientX - 491);
+    ch.setAttribute("x2", event.clientX - 50);
     ch.setAttribute("y2", 15);
     ch.setAttribute("stroke", "#4d4d33");
   }
+
+  var syncMoveEvent = new CustomEvent('syncMove',
+  {
+      'detail': {
+        x : event.clientX,
+        y : event.clientY
+      }
+  });
+
+  var svglist = document.getElementsByClassName("chartsvg");
+  console.log(svglist);
+
+  var svg;
+  for(svg of svglist)
+  {
+    console.log(svg);
+    if(event.currentTarget != svg)
+      svg.dispatchEvent(syncMoveEvent);
+  }
+}
+
+function syncLeaveFunction(e)
+{
+  console.log("syn leave function");
+
+  var svgns = "http://www.w3.org/2000/svg";
+
+  //var ch = document.getElementsByClassName("synccrosshair");
+  var ch = document.getElementById("synccrosshair");
+
+  // var svglist = document.getElementsByClassName("chartsvg");
+  console.log("current target in sync leave : ", e.currentTarget.getElementById("synccrosshair"));
+
+  console.log("fetched by class ch in sync leave : ", ch);
+  // var ch = document.createElementNS(svgns, "line");
+  // for(c of ch)
+    e.currentTarget.removeChild(e.currentTarget.getElementById("synccrosshair"));
+  
 }
 
 function myLeave(event)
 {
-  console.log(event);
+  console.log("Leave Event");
   //alert("hello leave");
 
-  var svgns = "http://www.w3.org/2000/svg";
-  var ch = document.getElementById("crosshair");
+  var syncLeaveEvent = new CustomEvent('syncLeave',
+  {
+      'detail': {
+        x : event.clientX,
+        y : event.clientY
+      }
+  });
+  //debugger;
+  var ch = document.getElementById("crosshair1");
 
   // var ch = document.createElementNS(svgns, "line");
-  this.removeChild(ch);  
+  event.currentTarget.removeChild(ch);
+
+  var svglist = document.getElementsByClassName("chartsvg");
+  console.log(svglist);
+
+  var svg;
+  for(svg of svglist)
+  {
+    console.log(svg);
+    if(event.currentTarget != svg)
+      svg.dispatchEvent(syncLeaveEvent);
+  }
 }
 
+//Chart Rendering
 function drawChart(chartx,charts,index,no_charts)
 {
   var svgns = "http://www.w3.org/2000/svg";
@@ -100,17 +228,18 @@ function drawChart(chartx,charts,index,no_charts)
 
   var text = document.createElementNS(svgns, "text");
   text.setAttribute("class","yaxislabels");
-  text.setAttribute('x', 30);
+  text.setAttribute('x', 19);
   text.setAttribute('y', 150);
   text.setAttribute('fill', '#0000ff');
   text.setAttribute("text-anchor"," middle");
   text.textContent = charts.label;
-  text.setAttribute("transform","rotate(270 30,150)");
+  text.setAttribute("transform","rotate(270 19,150)");
   svglabel.appendChild(text);
 
   var svg = document.createElementNS(svgns, "svg");
+  svg.setAttributeNS(null,"class","chartsvg");
   svg.setAttributeNS(null,"height","340");
-  svg.setAttributeNS(null,"width","552");
+  svg.setAttributeNS(null,"width","556");
 
   var xline = document.createElementNS(svgns, "line");
   xline.setAttribute("class","xaxis");
@@ -145,7 +274,7 @@ function drawChart(chartx,charts,index,no_charts)
   scale = pxrange / valrange;
   console.log("y repeat : " + Math.ceil((charts.cmax - charts.cmin) / charts.cdiv));
 
-  
+  //Y-axis ticks and label rendered
   for(iy = 0 ; iy <= Math.floor((charts.cmax - charts.cmin) / charts.cdiv) ; iy++)
   {
           var min = parseFloat(charts.cmin);
@@ -155,7 +284,7 @@ function drawChart(chartx,charts,index,no_charts)
           ytick.setAttribute("class","yticks");
           ytick.setAttribute("x1", 50);
           ytick.setAttribute("y1", jy-jumpy*iy);
-          ytick.setAttribute("x2", 45);
+          ytick.setAttribute("x2", 42);
           ytick.setAttribute("y2", jy-jumpy*iy);
           ytick.setAttribute("stroke", "green");
           svg.appendChild(ytick);
@@ -199,7 +328,8 @@ function drawChart(chartx,charts,index,no_charts)
 
   console.log("pix range : " + pxrange);
   console.log("val range : " + valrange + "    " +  "scale : " + scale);
-  //X-Axis ticks
+  
+  //X-Axis ticks and data plotting
   for(ix = 0 ; ix < chartx.no_ticks ; ix++)
   {      
           console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
@@ -208,21 +338,11 @@ function drawChart(chartx,charts,index,no_charts)
           xtick.setAttribute("x1", jx+jump*ix);
           xtick.setAttribute("y1", jy);
           xtick.setAttribute("x2", jx+jump*ix);
-          xtick.setAttribute("y2", jy+5);
+          xtick.setAttribute("y2", jy+7);
           xtick.setAttribute("stroke", "#140d06");
           svg.appendChild(xtick);
 
-          var point = document.createElementNS(svgns, "circle");
-          point.setAttribute("class","plotpoints");
-          point.setAttribute("cx", jx+jump*ix);
-          point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
-          point.setAttribute("r", 5);
-          point.setAttribute("fill", "#990000");
-          point.setAttribute("stroke", "green");
-          var title = document.createElementNS(svgns, "title");
-          title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
-          point.appendChild(title);
-          svg.appendChild(point);
+          
 
           if(prevx != 0 && prevy != 0)
           {
@@ -235,6 +355,18 @@ function drawChart(chartx,charts,index,no_charts)
             connect.setAttribute("stroke", "green");
             svg.appendChild(connect);
           }
+
+          var point = document.createElementNS(svgns, "circle");
+          point.setAttribute("class","plotpoints");
+          point.setAttribute("cx", jx+jump*ix);
+          point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+          point.setAttribute("r", 5);
+          point.setAttribute("fill", "#990000");
+          point.setAttribute("stroke", "green");
+          var title = document.createElementNS(svgns, "title");
+          title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
+          point.appendChild(title);
+          svg.appendChild(point);
 
           if(index == no_charts - 1)
           {
@@ -257,17 +389,27 @@ function drawChart(chartx,charts,index,no_charts)
   svg.appendChild(xline);
   svg.appendChild(yline);
 
+  //Custom Event Listener function
+  
+
+  //Listeners
+  //document.body.addEventListener("sync", syncFunction, false);
+  svg.addEventListener("syncEnter",syncEnterFunction,false);
+  svg.addEventListener("syncMove",syncMoveFunction,false);
+  svg.addEventListener("syncLeave",syncLeaveFunction,false);
+
   svg.addEventListener("mouseleave",myLeave);
   svg.addEventListener("mousemove",myMove);
   svg.addEventListener("mouseenter",myEnter);
 
+  //Div Created
   var myDiv = document.createElement("div");
-  //myDiv.appendChild("hi");
-  //myDiv.setAttribute("id","div1");
+  
+  //Div appended with svg
   myDiv.appendChild(svglabel);
   myDiv.appendChild(svg);
-  myDiv.setAttribute("align","center");
-  //document.getElementById("div1").appendChild(svg);
+  //myDiv.setAttribute("align","center");
+  
   document.getElementById("chart-container").appendChild(myDiv);
 
   console.log("....................................");
