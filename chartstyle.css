@@ -1,12 +1,10 @@
 #cap {
-
       
       color: red;
 }
 
 
 #subcap {
-
       
       color: brown;
 }
@@ -14,18 +12,19 @@
 
 .xaxis {
 
-      stroke: #e6e6e6;
-      stroke-width: 2;
+      stroke: #737373;
+      stroke-width: 1;
 }
 .yaxis {
 
-      stroke: #e6e6e6;
-      stroke-width: 2;    
+      stroke: #737373;
+      stroke-width: 1;    
 }
 
 .xaxislabels {
 
 		fill: #0d0d0d;
+            -webkit-transform: rotate(45deg);
 }
 
 .yaxislabels {
@@ -56,7 +55,7 @@
 
 .divlines {
 
-	  stroke: #e6e6e6;
+	stroke: ;
       stroke-width: 1;
 }
 
