@@ -202,6 +202,7 @@ function myLeave(event)
 //Chart Rendering
 function drawChart(chartx,charts,index,no_charts)
 {
+  var colorflag = 0;
   var svgns = "http://www.w3.org/2000/svg";
   var ix;
   var jump = 500/(chartx.no_ticks - 1);
@@ -295,8 +296,33 @@ function drawChart(chartx,charts,index,no_charts)
           divline.setAttribute("y1", jy-jumpy*iy);
           divline.setAttribute("x2", 550);
           divline.setAttribute("y2", jy-jumpy*iy);
-          divline.setAttribute("stroke", "#e6ccb3");
+          //divline.setAttribute("stroke", "#e6ccb3");
           svg.appendChild(divline);
+
+          if(iy < Math.floor((charts.cmax - charts.cmin) / charts.cdiv))
+          {
+            var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute("class","divrect");
+            rect.setAttribute("x","50");
+            rect.setAttribute("y",jy-jumpy*(iy+1));
+            rect.setAttribute("height",jumpy-1);
+            rect.setAttribute("width",504);
+            rect.setAttribute("stroke", "#737373");
+            rect.setAttribute("stroke-width", "0.5");
+            //rect.setAttribute("border-color","#737373");
+            //rect.setAttribute("border-style", "ridge");
+            if(colorflag == 0)
+            {
+              rect.setAttribute("fill","#e6e6e6");
+              colorflag = 1;
+            }
+            else
+            {
+              rect.setAttribute("fill","#ffffff");
+              colorflag = 0;                                
+            }
+            svg.appendChild(rect);
+          }
 
           var text = document.createElementNS(svgns, "text");
           text.setAttribute("class","ylabels");
@@ -342,32 +368,6 @@ function drawChart(chartx,charts,index,no_charts)
           xtick.setAttribute("stroke", "#140d06");
           svg.appendChild(xtick);
 
-          
-
-          if(prevx != 0 && prevy != 0)
-          {
-            var connect = document.createElementNS(svgns, "line");
-            connect.setAttribute("class","connects");
-            connect.setAttribute("x1", prevx);
-            connect.setAttribute("y1", prevy);
-            connect.setAttribute("x2", jx+jump*ix);
-            connect.setAttribute("y2", parseInt(jy - (yval[ix] - charts.cmin) * scale));
-            connect.setAttribute("stroke", "green");
-            svg.appendChild(connect);
-          }
-
-          var point = document.createElementNS(svgns, "circle");
-          point.setAttribute("class","plotpoints");
-          point.setAttribute("cx", jx+jump*ix);
-          point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
-          point.setAttribute("r", 5);
-          point.setAttribute("fill", "#990000");
-          point.setAttribute("stroke", "green");
-          var title = document.createElementNS(svgns, "title");
-          title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
-          point.appendChild(title);
-          svg.appendChild(point);
-
           if(index == no_charts - 1)
           {
             var text = document.createElementNS(svgns, "text");
@@ -379,9 +379,38 @@ function drawChart(chartx,charts,index,no_charts)
             text.textContent = chartx.value[ix];
             svg.appendChild(text);
           }
+          
+          if(yval[ix] != 22446688)
+          {
+            if(prevx != 0 && prevy != 0)
+            {
+            var connect = document.createElementNS(svgns, "line");
+            connect.setAttribute("class","connects");
+            connect.setAttribute("x1", prevx);
+            connect.setAttribute("y1", prevy);
+            connect.setAttribute("x2", jx+jump*ix);
+            connect.setAttribute("y2", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+            connect.setAttribute("stroke", "green");
+            svg.appendChild(connect);
+            }
 
-          prevx = jx+jump*ix;
-          prevy = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+            var point = document.createElementNS(svgns, "circle");
+            point.setAttribute("class","plotpoints");
+            point.setAttribute("cx", jx+jump*ix);
+            point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+            point.setAttribute("r", 5);
+            point.setAttribute("fill", "#990000");
+            point.setAttribute("stroke", "green");
+            var title = document.createElementNS(svgns, "title");
+            title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
+            point.appendChild(title);
+            svg.appendChild(point);
+
+            prevx = jx+jump*ix;
+            prevy = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+          }
+          else
+            continue;
 
           //jx += jump;
   }
@@ -544,10 +573,17 @@ function loadChartData()
                     
                     for(j = 0 ; j < temp1.yvalues.length ; j++)
                     {
+                      if(temp1.yvalues[j] == null || temp1.yvalues[j] == "" || temp1.yvalues[j] == undefined)
+                      {
+                        temp1.yvalues[j] = 22446688;
+                      }
+                      else
+                      {
                       if(temp1.yvalues[j] < min)
                         min = temp1.yvalues[j];
                       if(temp1.yvalues[j] > max)
                         max = temp1.yvalues[j];
+                      }
                     }
 
                     charts[i] = new chartyAxis(ylabel, temp1, min, max);
