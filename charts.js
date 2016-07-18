@@ -1,6 +1,8 @@
 var xmlhttp = new XMLHttpRequest(),json;
 loadChartData();
 
+var plotpoints = new Array();
+
 var chartDetails=function(a,b)
 {
   this.caption=a;
@@ -24,6 +26,14 @@ var chartyAxis = function(a,b,min,max)
   this.cmin=0;
   this.cmax=0;
   this.cdiv=0;
+}
+
+var plotdetails = function(xplot,yplot,data,svg)
+{
+  this.xplot=xplot;
+  this.yplot=yplot;
+  this.data=data;
+  this.svg=svg;
 }
 
 //Listener Functions
@@ -92,8 +102,7 @@ function myEnter(event)
 function syncMoveFunction(e)
 {
   console.log("syn move function");
-
-  var svgns = "http://www.w3.org/2000/svg";
+  var i;
 
   //var ch = document.getElementsByClassName("synccrosshair");
   var c = document.getElementsByClassName("synccrosshair");
@@ -110,6 +119,61 @@ function syncMoveFunction(e)
       ch.setAttribute("y2", 15);
       ch.setAttribute("stroke", "#4d4d33");
       //e.currentTarget.appendChild(c);
+
+      for(i = 0 ; i < plotpoints.length ; i++)
+      {
+        if(plotpoints[i].svg === e.currentTarget)
+        {
+          //console.log("Matching........", plotpoints[i].svg);
+          // for(j = 0 ; j < plotpoints[i].xplot.length ; j++)
+          // {
+          //   if((e.detail.x - 50) == plotpoints[i].xplot[j])
+          //   {
+          //     var svgns = "http://www.w3.org/2000/svg";
+          //     var text = document.createElementNS(svgns, "text");
+          //     text.setAttribute("id","tooltip");
+          //     text.setAttribute('x', e.detail.x - 50);
+          //     text.setAttribute('y', plotpoints[i].yplot[j]);
+          //     text.setAttribute('fill', '#0000ff');
+          //     text.setAttribute("text-anchor"," middle");
+          //     console.log("tool tip : ");
+          //     text.textContent = "hello";
+          //     plotpoints[i].svg.appendChild(text);
+          //   }
+          //   else
+          //   {
+          //     if(plotpoints[i].svg.getElementById("tooltip") != null)
+          //     {
+          //     var t = plotpoints[i].svg.getElementById("tooltip");
+          //     t.textContent = "";
+          //     plotpoints[i].svg.appendChild(t);
+          //     }
+          //   }
+          // }
+          for(cn of plotpoints[i].xplot)
+            if(cn == (e.detail.x - 50))
+            {
+              var svgns = "http://www.w3.org/2000/svg";
+              var text = document.createElementNS(svgns, "text");
+              text.setAttribute("id","tooltip");
+              text.setAttribute('x', e.detail.x - 50);
+              text.setAttribute('y', plotpoints[i].yplot[plotpoints[i].xplot.indexOf(cn)]);
+              text.setAttribute('fill', '#0000ff');
+              text.setAttribute("text-anchor","end");
+              //console.log("tool tip : ");
+              text.textContent = plotpoints[i].data[plotpoints[i].xplot.indexOf(cn)];
+              plotpoints[i].svg.appendChild(text);
+            }
+            else
+              if(plotpoints[i].svg.getElementById("tooltip") != null)
+              {
+                var t = plotpoints[i].svg.getElementById("tooltip");
+                t.textContent = "";
+                plotpoints[i].svg.appendChild(t);
+              }
+        }
+      }
+      //if()
     //}
   }
 }
@@ -216,6 +280,11 @@ function drawChart(chartx,charts,index,no_charts)
   var exteremeypix;
   var firstypix = 0;
   var pxrange;
+
+  var xplot = [];
+  var yplot = [];
+  var data = [];
+  var svglinked;
 
   //console.log("jump x : " + jump);
   //console.log("jump y : " + jumpy);
@@ -377,6 +446,7 @@ function drawChart(chartx,charts,index,no_charts)
             text.setAttribute('fill', '#000');
             text.setAttribute("text-anchor"," middle");
             text.textContent = chartx.value[ix];
+            //text.setAttribute("transform","rotate(270 19,150)");
             svg.appendChild(text);
           }
           
@@ -384,36 +454,46 @@ function drawChart(chartx,charts,index,no_charts)
           {
             if(prevx != 0 && prevy != 0)
             {
-            var connect = document.createElementNS(svgns, "line");
-            connect.setAttribute("class","connects");
-            connect.setAttribute("x1", prevx);
-            connect.setAttribute("y1", prevy);
-            connect.setAttribute("x2", jx+jump*ix);
-            connect.setAttribute("y2", parseInt(jy - (yval[ix] - charts.cmin) * scale));
-            connect.setAttribute("stroke", "green");
-            svg.appendChild(connect);
+              var connect = document.createElementNS(svgns, "line");
+              connect.setAttribute("class","connects");
+              connect.setAttribute("x1", prevx);
+              connect.setAttribute("y1", prevy);
+              connect.setAttribute("x2", jx+jump*ix);
+              connect.setAttribute("y2", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+              connect.setAttribute("stroke", "green");
+              svg.appendChild(connect);
             }
 
             var point = document.createElementNS(svgns, "circle");
             point.setAttribute("class","plotpoints");
+            point.setAttribute("id", ix);
             point.setAttribute("cx", jx+jump*ix);
             point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
             point.setAttribute("r", 5);
             point.setAttribute("fill", "#990000");
             point.setAttribute("stroke", "green");
             var title = document.createElementNS(svgns, "title");
-            title.innerHTML = yval[ix] + " " + charts.label + " for " + chartx.label + " " + chartx.value[ix];
+            title.setAttribute("class","tip");
+            title.innerHTML = yval[ix] + " " + charts.label;
             point.appendChild(title);
             svg.appendChild(point);
 
             prevx = jx+jump*ix;
             prevy = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+
+            xplot[ix] = jx + jump * ix;
+            yplot[ix] = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+            data[ix] = title.innerHTML;
           }
           else
             continue;
 
+          svglinked = svg;
           //jx += jump;
   }
+
+  plotpoints[index] = new plotdetails(xplot,yplot,data,svglinked);
+  console.log("New object created : ", plotpoints[index]);
 
   svg.appendChild(xline);
   svg.appendChild(yline);
