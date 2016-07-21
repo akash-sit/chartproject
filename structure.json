@@ -1,4 +1,6 @@
 {
+    "chartHeight" : 300,
+    "chartWidth" : 500,
 
     "chartCaption" : "Comparision Chart",
     "chartSubCaption" : " MySubCaption",
@@ -10,7 +12,7 @@
 
     "ydata": [
         {   
-            "yvalues" : [-120,-122,-121,-127,"",-122,-121,-127]
+            "yvalues" : [-120,-122,-121,-127,-120,"",-121,-127]
         },{
             "yvalues" : [24.20,23.21,29.38,35.29,24.20,23.21,29.38,35.29]
         },{

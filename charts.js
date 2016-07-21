@@ -3,6 +3,12 @@ loadChartData();
 
 var plotpoints = new Array();
 
+var chartDimension=function(h,w)
+{
+  this.height=h;
+  this.width=w;
+}
+
 var chartDetails=function(a,b)
 {
   this.caption=a;
@@ -40,7 +46,7 @@ var plotdetails = function(xplot,yplot,data,svg)
 
 function syncEnterFunction(e)
 {
-  console.log("Calling custom event");
+  console.log("Calling sync enter custom event");
 
   var svgns = "http://www.w3.org/2000/svg";
 
@@ -48,15 +54,15 @@ function syncEnterFunction(e)
   var ch = document.createElementNS(svgns, "line");
   ch.setAttribute("class","synccrosshair");
   ch.setAttribute("id","synccrosshair");
-  ch.setAttribute("x1", e.detail.x - 50);
-  ch.setAttribute("y1", 300);
-  ch.setAttribute("x2", e.detail.x - 50);
-  ch.setAttribute("y2", 15);
+  ch.setAttribute("x1", e.detail.x);
+  ch.setAttribute("y1", (height-bpad));
+  ch.setAttribute("x2", e.detail.x);
+  ch.setAttribute("y2", tpad);
   ch.setAttribute("stroke", "#4d4d33");
   
 
   e.currentTarget.appendChild(ch);
-  console.log("ch : ", e.currentTarget);
+  //console.log("ch : ", e.currentTarget);
   //debugger;   
 }
 
@@ -77,22 +83,22 @@ function myEnter(event)
   var ch = document.createElementNS(svgns, "line");
   ch.setAttribute("class","crosshair1");
   ch.setAttribute("id","crosshair1");
-  ch.setAttribute("x1", event.clientX - 50);
-  ch.setAttribute("y1", 300);
-  ch.setAttribute("x2", event.clientX - 50);
-  ch.setAttribute("y2", 15);
+  ch.setAttribute("x1", event.clientX);
+  ch.setAttribute("y1", (height-bpad));
+  ch.setAttribute("x2", event.clientX);
+  ch.setAttribute("y2", tpad);
   ch.setAttribute("stroke", "#4d4d33");
 
-  console.log("this is : ", event.currentTarget);
+  //console.log("this is : ", event.currentTarget);
   event.currentTarget.appendChild(ch);
 
   var svglist = document.getElementsByClassName("chartsvg");
-  console.log(svglist);
+  //console.log(svglist);
 
   var svg;
   for(svg of svglist)
   {
-    console.log(svg);
+    //console.log(svg);
     if(event.currentTarget != svg)
       svg.dispatchEvent(syncEventEnter);
   }
@@ -107,58 +113,35 @@ function syncMoveFunction(e)
   //var ch = document.getElementsByClassName("synccrosshair");
   var c = document.getElementsByClassName("synccrosshair");
 
-  console.log("move event crosshair : ", c);
+  //console.log("move event crosshair : ", c);
   // var ch = document.createElementNS(svgns, "line");
   for(ch of c)
   {
-    //if(event.clientX - 50 > 51)
-    //{
-      ch.setAttribute("x1", e.detail.x - 50);
-      ch.setAttribute("y1", 300);
-      ch.setAttribute("x2", e.detail.x - 50);
-      ch.setAttribute("y2", 15);
+    if(e.detail.x > lpad && e.detail.y < (height - bpad))
+    {
+      console.log("sync move inside if");
+      ch.setAttribute("x1", e.detail.x);
+      ch.setAttribute("y1", (height-bpad));
+      ch.setAttribute("x2", e.detail.x);
+      ch.setAttribute("y2", tpad);
       ch.setAttribute("stroke", "#4d4d33");
       //e.currentTarget.appendChild(c);
 
       for(i = 0 ; i < plotpoints.length ; i++)
       {
-        if(plotpoints[i].svg === e.currentTarget)
-        {
-          //console.log("Matching........", plotpoints[i].svg);
-          // for(j = 0 ; j < plotpoints[i].xplot.length ; j++)
-          // {
-          //   if((e.detail.x - 50) == plotpoints[i].xplot[j])
-          //   {
-          //     var svgns = "http://www.w3.org/2000/svg";
-          //     var text = document.createElementNS(svgns, "text");
-          //     text.setAttribute("id","tooltip");
-          //     text.setAttribute('x', e.detail.x - 50);
-          //     text.setAttribute('y', plotpoints[i].yplot[j]);
-          //     text.setAttribute('fill', '#0000ff');
-          //     text.setAttribute("text-anchor"," middle");
-          //     console.log("tool tip : ");
-          //     text.textContent = "hello";
-          //     plotpoints[i].svg.appendChild(text);
-          //   }
-          //   else
-          //   {
-          //     if(plotpoints[i].svg.getElementById("tooltip") != null)
-          //     {
-          //     var t = plotpoints[i].svg.getElementById("tooltip");
-          //     t.textContent = "";
-          //     plotpoints[i].svg.appendChild(t);
-          //     }
-          //   }
-          // }
+        //if(plotpoints[i].svg === e.currentTarget)
+        //{
+          
           for(cn of plotpoints[i].xplot)
-            if(cn == (e.detail.x - 50))
+            if(((e.detail.x) <= (cn + 2)) && ((e.detail.x) >= (cn - 2)))
             {
               var svgns = "http://www.w3.org/2000/svg";
               var text = document.createElementNS(svgns, "text");
               text.setAttribute("id","tooltip");
-              text.setAttribute('x', e.detail.x - 50);
+              text.setAttribute("class","tooltip");
+              text.setAttribute('x', e.detail.x);
               text.setAttribute('y', plotpoints[i].yplot[plotpoints[i].xplot.indexOf(cn)]);
-              text.setAttribute('fill', '#0000ff');
+              text.setAttribute('fill', '#ff9f80');
               text.setAttribute("text-anchor","end");
               //console.log("tool tip : ");
               text.textContent = plotpoints[i].data[plotpoints[i].xplot.indexOf(cn)];
@@ -171,10 +154,8 @@ function syncMoveFunction(e)
                 t.textContent = "";
                 plotpoints[i].svg.appendChild(t);
               }
-        }
       }
-      //if()
-    //}
+    }
   }
 }
 
@@ -185,12 +166,12 @@ function myMove(event)
   var svgns = "http://www.w3.org/2000/svg";
   var ch = document.getElementById("crosshair1");
 
-  if(event.clientX - 50 > 51)
+  if(event.clientX > lpad && event.clientY < (height - bpad))
   {
-    ch.setAttribute("x1", event.clientX - 50);
-    ch.setAttribute("y1", 300);
-    ch.setAttribute("x2", event.clientX - 50);
-    ch.setAttribute("y2", 15);
+    ch.setAttribute("x1", event.clientX);
+    ch.setAttribute("y1", (height-bpad));
+    ch.setAttribute("x2", event.clientX);
+    ch.setAttribute("y2", tpad);
     ch.setAttribute("stroke", "#4d4d33");
   }
 
@@ -203,13 +184,13 @@ function myMove(event)
   });
 
   var svglist = document.getElementsByClassName("chartsvg");
-  console.log(svglist);
+  //console.log(svglist);
 
   var svg;
   for(svg of svglist)
   {
-    console.log(svg);
-    if(event.currentTarget != svg)
+    //console.log(svg);
+    //if(event.currentTarget != svg)
       svg.dispatchEvent(syncMoveEvent);
   }
 }
@@ -224,9 +205,9 @@ function syncLeaveFunction(e)
   var ch = document.getElementById("synccrosshair");
 
   // var svglist = document.getElementsByClassName("chartsvg");
-  console.log("current target in sync leave : ", e.currentTarget.getElementById("synccrosshair"));
+  //console.log("current target in sync leave : ", e.currentTarget.getElementById("synccrosshair"));
 
-  console.log("fetched by class ch in sync leave : ", ch);
+  //console.log("fetched by class ch in sync leave : ", ch);
   // var ch = document.createElementNS(svgns, "line");
   // for(c of ch)
     e.currentTarget.removeChild(e.currentTarget.getElementById("synccrosshair"));
@@ -252,34 +233,49 @@ function myLeave(event)
   event.currentTarget.removeChild(ch);
 
   var svglist = document.getElementsByClassName("chartsvg");
-  console.log(svglist);
+  //console.log(svglist);
 
   var svg;
   for(svg of svglist)
   {
-    console.log(svg);
+    //console.log(svg);
     if(event.currentTarget != svg)
       svg.dispatchEvent(syncLeaveEvent);
   }
 }
 
+var height;
+var width;
+var lpad;
+var rpad;
+var tpad;
+var bpad;
+
 //Chart Rendering
-function drawChart(chartx,charts,index,no_charts)
+function drawChart(chartsize,chartx,charts,index,no_charts)
 {
   var colorflag = 0;
   var svgns = "http://www.w3.org/2000/svg";
-  var ix;
-  var jump = 500/(chartx.no_ticks - 1);
-  var jx = 50;
-
-  var iy;
-  var jumpy = 285/((charts.cmax - charts.cmin) / charts.cdiv);
-  var jy = 300;
 
   var yval = charts.value.yvalues;
   var exteremeypix;
   var firstypix = 0;
   var pxrange;
+
+  height = chartsize.height;
+  width = chartsize.width;
+  lpad = width/7;
+  rpad = 10;
+  tpad = height/7;
+  bpad = height/6;
+
+  var ix;
+  var jump = ((width-rpad) - lpad)/(chartx.no_ticks - 1);
+  var jx = 50;
+
+  var iy;
+  var jumpy = ((height-bpad) - tpad)/((charts.cmax - charts.cmin) / charts.cdiv);
+  var jy = 300;
 
   var xplot = [];
   var yplot = [];
@@ -296,53 +292,53 @@ function drawChart(chartx,charts,index,no_charts)
   svglabel.setAttributeNS(null,"height","340");
   svglabel.setAttributeNS(null,"width","40");
 
+  var svg = document.createElementNS(svgns, "svg");
+  svg.setAttributeNS(null,"class","chartsvg");
+  svg.setAttributeNS(null,"height",height);
+  svg.setAttributeNS(null,"width",width);
+
   var text = document.createElementNS(svgns, "text");
   text.setAttribute("class","yaxislabels");
-  text.setAttribute('x', 19);
-  text.setAttribute('y', 150);
+  text.setAttribute('x', lpad*0.4);
+  text.setAttribute('y', height*0.5);
   text.setAttribute('fill', '#0000ff');
   text.setAttribute("text-anchor"," middle");
   text.textContent = charts.label;
-  text.setAttribute("transform","rotate(270 19,150)");
-  svglabel.appendChild(text);
-
-  var svg = document.createElementNS(svgns, "svg");
-  svg.setAttributeNS(null,"class","chartsvg");
-  svg.setAttributeNS(null,"height","340");
-  svg.setAttributeNS(null,"width","556");
+  text.setAttribute("transform","rotate(270 " + (lpad*0.4) + "," +(height*0.5) + ")");
+  svg.appendChild(text);
 
   var xline = document.createElementNS(svgns, "line");
   xline.setAttribute("class","xaxis");
-  xline.setAttribute("x1", 50);
-  xline.setAttribute("y1", jy);
-  xline.setAttribute("x2", 550);
-  xline.setAttribute("y2", jy);
+  xline.setAttribute("x1", lpad);
+  xline.setAttribute("y1", height-bpad);
+  xline.setAttribute("x2", width-rpad);
+  xline.setAttribute("y2", height-bpad);
   xline.setAttribute("stroke", "#4d4d33");
 
   if(index == no_charts - 1)
   {
-    var text = document.createElementNS(svgns, "text");
-    text.setAttribute("class","xaxislabels");
-    text.setAttribute('x', 300);
-    text.setAttribute('y', 340);
-    text.setAttribute('fill', '#0000ff');
-    text.setAttribute("text-anchor"," middle");
-    text.textContent = chartx.label;
-    svg.appendChild(text);
+    var xname = document.createElementNS(svgns, "text");
+    xname.setAttribute("class","xaxislabels");
+    xname.setAttribute('x', 300);
+    xname.setAttribute('y', 200);
+    xname.setAttribute('fill', '#0000ff');
+    xname.setAttribute("text-anchor"," middle");
+    xname.textContent = chartx.label;
+    svg.appendChild(xname);
   }
 
   var yline = document.createElementNS(svgns, "line");
   yline.setAttribute("class","yaxis");
-  yline.setAttribute("x1", 50);
-  yline.setAttribute("y1", jy);
-  yline.setAttribute("x2", 50);
-  yline.setAttribute("y2", jy-285);
+  yline.setAttribute("x1", lpad);
+  yline.setAttribute("y1", height-bpad);
+  yline.setAttribute("x2", lpad);
+  yline.setAttribute("y2", tpad);
   yline.setAttribute("stroke", "#003d99");
 
   pxrange = firstypix - exteremeypix;
   valrange = charts.cmax - charts.cmin;
   scale = pxrange / valrange;
-  console.log("y repeat : " + Math.ceil((charts.cmax - charts.cmin) / charts.cdiv));
+  //console.log("y repeat : " + Math.ceil((charts.cmax - charts.cmin) / charts.cdiv));
 
   //Y-axis ticks and label rendered
   for(iy = 0 ; iy <= Math.floor((charts.cmax - charts.cmin) / charts.cdiv) ; iy++)
@@ -352,30 +348,30 @@ function drawChart(chartx,charts,index,no_charts)
           
           var ytick = document.createElementNS(svgns, "line");
           ytick.setAttribute("class","yticks");
-          ytick.setAttribute("x1", 50);
-          ytick.setAttribute("y1", jy-jumpy*iy);
-          ytick.setAttribute("x2", 42);
-          ytick.setAttribute("y2", jy-jumpy*iy);
+          ytick.setAttribute("x1", lpad);
+          ytick.setAttribute("y1", (height-bpad)-jumpy*iy);
+          ytick.setAttribute("x2", lpad-8);
+          ytick.setAttribute("y2", (height-bpad)-jumpy*iy);
           ytick.setAttribute("stroke", "green");
           svg.appendChild(ytick);
 
           var divline = document.createElementNS(svgns, "line");
           divline.setAttribute("class","divlines");
-          divline.setAttribute("x1", 50);
-          divline.setAttribute("y1", jy-jumpy*iy);
-          divline.setAttribute("x2", 550);
-          divline.setAttribute("y2", jy-jumpy*iy);
-          //divline.setAttribute("stroke", "#e6ccb3");
+          divline.setAttribute("x1", lpad);
+          divline.setAttribute("y1", (height-bpad)-jumpy*iy);
+          divline.setAttribute("x2", width-rpad);
+          divline.setAttribute("y2", (height-bpad)-jumpy*iy);
+          divline.setAttribute("stroke", "#ff4000");
           svg.appendChild(divline);
 
           if(iy < Math.floor((charts.cmax - charts.cmin) / charts.cdiv))
           {
             var rect = document.createElementNS(svgns, "rect");
             rect.setAttribute("class","divrect");
-            rect.setAttribute("x","50");
-            rect.setAttribute("y",jy-jumpy*(iy+1));
+            rect.setAttribute("x",lpad);
+            rect.setAttribute("y",(height-bpad)-jumpy*(iy+1));
             rect.setAttribute("height",jumpy-1);
-            rect.setAttribute("width",504);
+            rect.setAttribute("width",(width-rpad) - lpad + 4);
             rect.setAttribute("stroke", "#737373");
             rect.setAttribute("stroke-width", "0.5");
             //rect.setAttribute("border-color","#737373");
@@ -395,17 +391,17 @@ function drawChart(chartx,charts,index,no_charts)
 
           var text = document.createElementNS(svgns, "text");
           text.setAttribute("class","ylabels");
-          text.setAttribute('x', 40);
-          text.setAttribute('y', jy-jumpy*iy);
+          text.setAttribute('x', lpad-10);
+          text.setAttribute('y', (height-bpad)-jumpy*iy);
           text.setAttribute('fill', '#000');
           text.setAttribute("text-anchor", "end");
           text.textContent = min + (add * iy);
           svg.appendChild(text);
 
           if(firstypix == 0)
-            firstypix = jy - jumpy * iy;
+            firstypix = (height - bpad) - jumpy * iy;
 
-          exteremeypix = jy - jumpy * iy;
+          exteremeypix = (height - bpad) - jumpy * iy;
           //jy -= jumpy;
   }
 
@@ -418,21 +414,21 @@ function drawChart(chartx,charts,index,no_charts)
   var prevx = 0;
   var prevy = 0;
 
-  console.log("first pix : " + firstypix);
-  console.log("extereme pix : " + exteremeypix);
+  //console.log("first pix : " + firstypix);
+  //console.log("extereme pix : " + exteremeypix);
 
-  console.log("pix range : " + pxrange);
-  console.log("val range : " + valrange + "    " +  "scale : " + scale);
+  //console.log("pix range : " + pxrange);
+  //console.log("val range : " + valrange + "    " +  "scale : " + scale);
   
   //X-Axis ticks and data plotting
   for(ix = 0 ; ix < chartx.no_ticks ; ix++)
   {      
-          console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
+          //console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
           var xtick = document.createElementNS(svgns, "line");
           xtick.setAttribute("class","xticks");
-          xtick.setAttribute("x1", jx+jump*ix);
+          xtick.setAttribute("x1", lpad+jump*ix);
           xtick.setAttribute("y1", jy);
-          xtick.setAttribute("x2", jx+jump*ix);
+          xtick.setAttribute("x2", lpad+jump*ix);
           xtick.setAttribute("y2", jy+7);
           xtick.setAttribute("stroke", "#140d06");
           svg.appendChild(xtick);
@@ -441,8 +437,8 @@ function drawChart(chartx,charts,index,no_charts)
           {
             var text = document.createElementNS(svgns, "text");
             text.setAttribute("class","xlabels");
-            text.setAttribute('x', jx+jump*ix);
-            text.setAttribute('y', jy+20);
+            text.setAttribute('x', lpad+jump*ix);
+            text.setAttribute('y', (height-bpad)+20);
             text.setAttribute('fill', '#000');
             text.setAttribute("text-anchor"," middle");
             text.textContent = chartx.value[ix];
@@ -458,8 +454,8 @@ function drawChart(chartx,charts,index,no_charts)
               connect.setAttribute("class","connects");
               connect.setAttribute("x1", prevx);
               connect.setAttribute("y1", prevy);
-              connect.setAttribute("x2", jx+jump*ix);
-              connect.setAttribute("y2", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+              connect.setAttribute("x2", lpad+jump*ix);
+              connect.setAttribute("y2", parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale));
               connect.setAttribute("stroke", "green");
               svg.appendChild(connect);
             }
@@ -467,8 +463,8 @@ function drawChart(chartx,charts,index,no_charts)
             var point = document.createElementNS(svgns, "circle");
             point.setAttribute("class","plotpoints");
             point.setAttribute("id", ix);
-            point.setAttribute("cx", jx+jump*ix);
-            point.setAttribute("cy", parseInt(jy - (yval[ix] - charts.cmin) * scale));
+            point.setAttribute("cx", lpad+jump*ix);
+            point.setAttribute("cy", parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale));
             point.setAttribute("r", 5);
             point.setAttribute("fill", "#990000");
             point.setAttribute("stroke", "green");
@@ -478,11 +474,11 @@ function drawChart(chartx,charts,index,no_charts)
             point.appendChild(title);
             svg.appendChild(point);
 
-            prevx = jx+jump*ix;
-            prevy = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+            prevx = lpad+jump*ix;
+            prevy = parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale);
 
-            xplot[ix] = jx + jump * ix;
-            yplot[ix] = parseInt(jy - (yval[ix] - charts.cmin) * scale);
+            xplot[ix] = lpad + jump * ix;
+            yplot[ix] = parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale);
             data[ix] = title.innerHTML;
           }
           else
@@ -515,11 +511,285 @@ function drawChart(chartx,charts,index,no_charts)
   var myDiv = document.createElement("div");
   
   //Div appended with svg
-  myDiv.appendChild(svglabel);
-  myDiv.appendChild(svg);
+  //myDiv.appendChild(svglabel);
+  //myDiv.appendChild(svg);
   //myDiv.setAttribute("align","center");
   
-  document.getElementById("chart-container").appendChild(myDiv);
+  document.getElementById("chart-container").appendChild(svg);
+
+  console.log("....................................");
+}
+
+function drawColChart(chartsize,chartx,charts,index,no_charts)
+{
+  var colorflag = 0;
+  var svgns = "http://www.w3.org/2000/svg";
+
+  var yval = charts.value.yvalues;
+  var exteremeypix;
+  var firstypix = 0;
+  var pxrange;
+
+  height = chartsize.height;
+  width = chartsize.width;
+  lpad = width/7;
+  rpad = 10;
+  tpad = height/7;
+  bpad = height/6;
+
+  var ix;
+  var jump = ((width-rpad) - lpad)/(chartx.no_ticks);
+  //var collpad = lpad * 0.4;
+  var colpad = jump * 0.5;
+  var jx = 50;
+
+  var iy;
+  var jumpy = ((height-bpad) - tpad)/((charts.cmax - charts.cmin) / charts.cdiv);
+  var jy = 300;
+
+  var xplot = [];
+  var yplot = [];
+  var data = [];
+  var svglinked;
+
+  //console.log("jump x : " + jump);
+  //console.log("jump y : " + jumpy);
+  //console.log("y values : " + yval);
+
+  //for(i = 0 ; i <)
+
+  var svg = document.createElementNS(svgns, "svg");
+  svg.setAttributeNS(null,"class","chartsvg");
+  svg.setAttributeNS(null,"height",height);
+  svg.setAttributeNS(null,"width",width);
+
+  var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute("class","seriesrect");
+            rect.setAttribute("x",lpad);
+            rect.setAttribute("y",(height-bpad+(bpad*0.2)));
+            rect.setAttribute("height",bpad*0.6);
+            rect.setAttribute("width",(width-rpad) - lpad);
+            rect.setAttribute("stroke", "#b3daff");
+            rect.setAttribute("stroke-width", "1");
+            //rect.setAttribute("border-color","#737373");
+            //rect.setAttribute("border-style", "ridge");
+            rect.setAttribute("fill","#e6f3ff");
+            svg.appendChild(rect);
+
+  var text = document.createElementNS(svgns, "text");
+  text.setAttribute("class","yaxislabels");
+  text.setAttribute('x', width*0.55);
+  text.setAttribute('y', height-bpad+(bpad*0.55));
+  text.setAttribute('fill', '#0000ff');
+  text.setAttribute("text-anchor"," middle");
+  text.textContent = charts.label;
+  //text.setAttribute("transform","rotate(270 " + (lpad*0.4) + "," +(height*0.5) + ")");
+  svg.appendChild(text);
+
+  var xline = document.createElementNS(svgns, "line");
+  xline.setAttribute("class","xaxis");
+  xline.setAttribute("x1", lpad);
+  xline.setAttribute("y1", height-bpad);
+  xline.setAttribute("x2", width-rpad);
+  xline.setAttribute("y2", height-bpad);
+  xline.setAttribute("stroke", "#4d4d33");
+
+  if(index == no_charts - 1)
+  {
+    var xname = document.createElementNS(svgns, "text");
+    xname.setAttribute("class","xaxislabels");
+    xname.setAttribute('x', 300);
+    xname.setAttribute('y', 200);
+    xname.setAttribute('fill', '#0000ff');
+    xname.setAttribute("text-anchor"," middle");
+    xname.textContent = chartx.label;
+    svg.appendChild(xname);
+  }
+
+  var yline = document.createElementNS(svgns, "line");
+  yline.setAttribute("class","yaxis");
+  yline.setAttribute("x1", lpad);
+  yline.setAttribute("y1", height-bpad);
+  yline.setAttribute("x2", lpad);
+  yline.setAttribute("y2", tpad);
+  yline.setAttribute("stroke", "#003d99");
+
+  pxrange = firstypix - exteremeypix;
+  valrange = charts.cmax - charts.cmin;
+  scale = pxrange / valrange;
+  //console.log("y repeat : " + Math.ceil((charts.cmax - charts.cmin) / charts.cdiv));
+
+  //Y-axis ticks and label rendered
+  for(iy = 0 ; iy <= Math.floor((charts.cmax - charts.cmin) / charts.cdiv) ; iy++)
+  {
+          var min = parseFloat(charts.cmin);
+          var add = charts.cdiv;
+          
+          var ytick = document.createElementNS(svgns, "line");
+          ytick.setAttribute("class","yticks");
+          ytick.setAttribute("x1", lpad);
+          ytick.setAttribute("y1", (height-bpad)-jumpy*iy);
+          ytick.setAttribute("x2", lpad-8);
+          ytick.setAttribute("y2", (height-bpad)-jumpy*iy);
+          ytick.setAttribute("stroke", "green");
+          svg.appendChild(ytick);
+
+          var divline = document.createElementNS(svgns, "line");
+          divline.setAttribute("class","divlines");
+          divline.setAttribute("x1", lpad);
+          divline.setAttribute("y1", (height-bpad)-jumpy*iy);
+          divline.setAttribute("x2", width-rpad);
+          divline.setAttribute("y2", (height-bpad)-jumpy*iy);
+          divline.setAttribute("stroke", "#eee6ff");
+          svg.appendChild(divline);
+
+          if(iy < Math.floor((charts.cmax - charts.cmin) / charts.cdiv))
+          {
+            var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute("class","divrect");
+            rect.setAttribute("x",lpad);
+            rect.setAttribute("y",(height-bpad)-jumpy*(iy+1));
+            rect.setAttribute("height",jumpy);
+            rect.setAttribute("width",(width-rpad) - lpad);
+            rect.setAttribute("stroke", "#eee6ff");
+            rect.setAttribute("stroke-width", "1");
+            //rect.setAttribute("border-color","#737373");
+            //rect.setAttribute("border-style", "ridge");
+            if(colorflag == 0)
+            {
+              rect.setAttribute("fill","#ffffff");
+              colorflag = 1;
+            }
+            else
+            {
+              rect.setAttribute("fill","#eee6ff");
+              colorflag = 0;                                
+            }
+            svg.appendChild(rect);
+          }
+
+          var text = document.createElementNS(svgns, "text");
+          text.setAttribute("class","ylabels");
+          text.setAttribute('x', lpad-10);
+          text.setAttribute('y', (height-bpad)-jumpy*iy);
+          text.setAttribute('fill', '#000');
+          text.setAttribute("text-anchor", "end");
+          text.textContent = min + (add * iy);
+          svg.appendChild(text);
+
+          if(firstypix == 0)
+            firstypix = (height - bpad) - jumpy * iy;
+
+          exteremeypix = (height - bpad) - jumpy * iy;
+          //jy -= jumpy;
+  }
+
+  jy = firstypix;
+
+  pxrange = firstypix - exteremeypix;
+  valrange = charts.cmax - charts.cmin;
+  scale = pxrange / valrange;
+
+  var prevx = 0;
+  var prevy = 0;
+
+  //console.log("first pix : " + firstypix);
+  //console.log("extereme pix : " + exteremeypix);
+
+  //console.log("pix range : " + pxrange);
+  //console.log("val range : " + valrange + "    " +  "scale : " + scale);
+  
+  //X-Axis ticks and data plotting
+  for(ix = 0 ; ix < chartx.no_ticks ; ix++)
+  {      
+          //console.log("y for plot : " + parseInt(jy - (yval[ix] - charts.cmin) * scale));
+          var xtick = document.createElementNS(svgns, "line");
+          xtick.setAttribute("class","xticks");
+          xtick.setAttribute("x1", lpad+colpad+jump*ix);
+          xtick.setAttribute("y1", jy);
+          xtick.setAttribute("x2", lpad+colpad+jump*ix);
+          xtick.setAttribute("y2", jy+7);
+          xtick.setAttribute("stroke", "#140d06");
+          svg.appendChild(xtick);
+          collpad = 0;
+
+          if(index == no_charts - 1)
+          {
+            var text = document.createElementNS(svgns, "text");
+            text.setAttribute("class","xlabels");
+            text.setAttribute('x', lpad+colpad+jump*ix);
+            text.setAttribute('y', (height-bpad)+20);
+            text.setAttribute('fill', '#000');
+            text.setAttribute("text-anchor"," middle");
+            text.textContent = chartx.value[ix];
+            //text.setAttribute("transform","rotate(270 19,150)");
+            svg.appendChild(text);
+          }
+          
+          if(yval[ix] != 22446688)
+          {
+            var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute('class','column');
+         rect.setAttribute('x', lpad+(colpad/2)+jump*ix);
+         rect.setAttribute('y', parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale));
+         rect.setAttribute('height', ((height-bpad) - parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale)));
+         rect.setAttribute('width', colpad);
+         rect.setAttribute('fill', '#0084ff');
+            /*point.setAttribute("class","plotpoints");
+            point.setAttribute("id", ix);
+            point.setAttribute("cx", lpad+jump*ix);
+            point.setAttribute("cy", parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale));
+            point.setAttribute("r", 5);
+            point.setAttribute("fill", "#990000");
+            point.setAttribute("stroke", "green");
+            var title = document.createElementNS(svgns, "title");
+            title.setAttribute("class","tip");
+            title.innerHTML = yval[ix] + " " + charts.label;
+            point.appendChild(title);*/
+            svg.appendChild(rect);
+
+            //prevx = lpad+jump*ix;
+            //prevy = parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale);
+
+            xplot[ix] = lpad + jump * ix;
+            yplot[ix] = parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale);
+            //data[ix] = title.innerHTML;
+          }
+          else
+            continue;
+
+          svglinked = svg;
+          //jx += jump;
+  }
+
+  plotpoints[index] = new plotdetails(xplot,yplot,data,svglinked);
+  console.log("New object created : ", plotpoints[index]);
+
+  svg.appendChild(xline);
+  svg.appendChild(yline);
+
+  //Custom Event Listener function
+  
+
+  //Listeners
+  //document.body.addEventListener("sync", syncFunction, false);
+  //svg.addEventListener("syncEnter",syncEnterFunction,false);
+  //svg.addEventListener("syncMove",syncMoveFunction,false);
+  //svg.addEventListener("syncLeave",syncLeaveFunction,false);
+
+  //svg.addEventListener("mouseleave",myLeave);
+  //svg.addEventListener("mousemove",myMove);
+  //svg.addEventListener("mouseenter",myEnter);
+
+  //Div Created
+  var myDiv = document.createElement("div");
+  
+  //Div appended with svg
+  //myDiv.appendChild(svglabel);
+  //myDiv.appendChild(svg);
+  //myDiv.setAttribute("align","center");
+  
+  document.getElementById("chart-container").appendChild(svg);
 
   console.log("....................................");
 }
@@ -529,7 +799,7 @@ function cal(charty)
   var r = charty.range;
   var low;
   var res;
-  console.log("r : " + r + "range : " + charty.range);
+  //console.log("r : " + r + "range : " + charty.range);
   if(Math.log(r) / Math.log(10) < 1)
   {
     if(r == 0.0)
@@ -551,10 +821,10 @@ function cal(charty)
       charty.cmin = (Math.floor(charty.min / 1.0) * 1);
       charty.cmax = Math.ceil(charty.max / 1.0) * 1;
       charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
-      console.log("cmin : " + charty.cmin);
-      console.log("cmax : " + charty.cmax);
-      console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
-      console.log("cdiv : " + charty.cdiv);
+      //console.log("cmin : " + charty.cmin);
+      //console.log("cmax : " + charty.cmax);
+      //console.log("cmax - cmin : " + (charty.cmax - charty.cmin));
+      //console.log("cdiv : " + charty.cdiv);
     }
   }
   else if(Math.log(r) / Math.log(10) < 2)
@@ -588,8 +858,8 @@ function cal(charty)
     charty.cdiv = (charty.cmax - charty.cmin) * 20 / 100;
   }
   
-  console.log("range charts : " + charty.range);
-  console.log("Calculated min max div : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv);
+  //console.log("range charts : " + charty.range);
+  //console.log("Calculated min max div : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv);
 }
 
 function cal_min_max(charty)
@@ -599,8 +869,8 @@ function cal_min_max(charty)
   charty.cmin = parseFloat(charty.min) - pad;
   charty.cmax = parseFloat(charty.max) + pad;
   charty.cdiv = Math.ceil((20 * (charty.cmax - charty.cmin)) / 100);
-  console.log("Calculated min max : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv + "    " + pad);
-  console.log("And then : " + typeof(charty.range));
+  //console.log("Calculated min max : " + charty.cmin + "    " + charty.cmax + "    " + charty.cdiv + "    " + pad);
+  //console.log("And then : " + typeof(charty.range));
 }
 
 function loadChartData()
@@ -617,13 +887,10 @@ function loadChartData()
 
           var data = document.getElementById("showData");
 
-          data.innerHTML = 'Chart Loaded <br> The Caption  of the chart is : ' + json.chartCaption + '<br>';
-          data.innerHTML += 'The sub caption of the chart is : ' + json.chartSubCaption + '<br>';
-
 
           //Chart caption and sub caption
           var chartnames = new chartDetails(json.chartCaption,json.chartSubCaption);
-                    
+          var chartsize = new chartDimension(json.chartHeight,json.chartWidth);          
 
           //Chart details of x-axis
           var temp = [];
@@ -669,6 +936,7 @@ function loadChartData()
                     charts[i] = new chartyAxis(ylabel, temp1, min, max);
           }
           console.log("Parsed Internal Data from Fetched Data");
+          console.log(chartsize);
           console.log(chartnames);
           console.log(chartx);
           console.log(charts);
@@ -681,7 +949,8 @@ function loadChartData()
           for(i = 0 ; i < no_charts ; i++)
           {
                   cal(charts[i]);
-                  drawChart(chartx,charts[i],i,no_charts);
+                  //drawChart(chartsize,chartx,charts[i],i,no_charts);
+                  drawColChart(chartsize,chartx,charts[i],i,no_charts);
           }
 
           //document.getElementById("cap").addEventListener("mousemove",myMove);
