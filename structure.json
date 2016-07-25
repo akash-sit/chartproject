@@ -1,4 +1,5 @@
 {
+    "type" : "col",
     "chartHeight" : 300,
     "chartWidth" : 500,
 
