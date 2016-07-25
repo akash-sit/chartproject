@@ -3,8 +3,9 @@ loadChartData();
 
 var plotpoints = new Array();
 
-var chartDimension=function(h,w)
+var chartDimension=function(t,h,w)
 {
+  this.type=t;
   this.height=h;
   this.width=w;
 }
@@ -250,6 +251,7 @@ var lpad;
 var rpad;
 var tpad;
 var bpad;
+var scale;
 
 //Chart Rendering
 function drawChart(chartsize,chartx,charts,index,no_charts)
@@ -297,7 +299,30 @@ function drawChart(chartsize,chartx,charts,index,no_charts)
   svg.setAttributeNS(null,"height",height);
   svg.setAttributeNS(null,"width",width);
 
+  var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute("class","seriesrect");
+            rect.setAttribute("x",lpad);
+            rect.setAttribute("y",(height-bpad+(bpad*0.2)));
+            rect.setAttribute("height",bpad*0.6);
+            rect.setAttribute("width",(width-rpad) - lpad);
+            rect.setAttribute("stroke", "#b3daff");
+            rect.setAttribute("stroke-width", "1");
+            //rect.setAttribute("border-color","#737373");
+            //rect.setAttribute("border-style", "ridge");
+            rect.setAttribute("fill","#e6f3ff");
+            svg.appendChild(rect);
+
   var text = document.createElementNS(svgns, "text");
+  text.setAttribute("class","yaxislabels");
+  text.setAttribute('x', width*0.55);
+  text.setAttribute('y', height-bpad+(bpad*0.55));
+  text.setAttribute('fill', '#0000ff');
+  text.setAttribute("text-anchor"," middle");
+  text.textContent = charts.label;
+  //text.setAttribute("transform","rotate(270 " + (lpad*0.4) + "," +(height*0.5) + ")");
+  svg.appendChild(text);
+
+  /*var text = document.createElementNS(svgns, "text");
   text.setAttribute("class","yaxislabels");
   text.setAttribute('x', lpad*0.4);
   text.setAttribute('y', height*0.5);
@@ -305,7 +330,7 @@ function drawChart(chartsize,chartx,charts,index,no_charts)
   text.setAttribute("text-anchor"," middle");
   text.textContent = charts.label;
   text.setAttribute("transform","rotate(270 " + (lpad*0.4) + "," +(height*0.5) + ")");
-  svg.appendChild(text);
+  svg.appendChild(text);*/
 
   var xline = document.createElementNS(svgns, "line");
   xline.setAttribute("class","xaxis");
@@ -520,12 +545,44 @@ function drawChart(chartsize,chartx,charts,index,no_charts)
   console.log("....................................");
 }
 
+function plotxAxisBelow(svg,lpad,colpad,jump,ix,height,bpad,chartx)
+{
+  var svgns = "http://www.w3.org/2000/svg";
+
+  var text = document.createElementNS(svgns, "text");
+            text.setAttribute("class","xlabels");
+            text.setAttribute('x', lpad+colpad+jump*ix);
+            text.setAttribute('y', (height-bpad)+20);
+            text.setAttribute('fill', '#000');
+            text.setAttribute("text-anchor"," middle");
+            text.textContent = chartx.value[ix];
+            //text.setAttribute("transform","rotate(270 19,150)");
+            svg.appendChild(text);
+}
+
+function plotxAxisAbove(svg,lpad,colpad,jump,ix,height,tpad,chartx)
+{
+  var svgns = "http://www.w3.org/2000/svg";
+
+  var text = document.createElementNS(svgns, "text");
+            text.setAttribute("class","xlabels");
+            text.setAttribute('x', lpad+colpad+jump*ix);
+            text.setAttribute('y', (tpad)-20);
+            text.setAttribute('fill', '#000');
+            text.setAttribute("text-anchor"," middle");
+            text.textContent = chartx.value[ix];
+            //text.setAttribute("transform","rotate(270 19,150)");
+            svg.appendChild(text);
+}
+
+var yval;
+
 function drawColChart(chartsize,chartx,charts,index,no_charts)
 {
   var colorflag = 0;
   var svgns = "http://www.w3.org/2000/svg";
 
-  var yval = charts.value.yvalues;
+  yval = charts.value.yvalues;
   var exteremeypix;
   var firstypix = 0;
   var pxrange;
@@ -713,18 +770,20 @@ function drawColChart(chartsize,chartx,charts,index,no_charts)
           svg.appendChild(xtick);
           collpad = 0;
 
-          if(index == no_charts - 1)
+          /*if(index == no_charts - 1)
           {
-            var text = document.createElementNS(svgns, "text");
-            text.setAttribute("class","xlabels");
-            text.setAttribute('x', lpad+colpad+jump*ix);
-            text.setAttribute('y', (height-bpad)+20);
-            text.setAttribute('fill', '#000');
-            text.setAttribute("text-anchor"," middle");
-            text.textContent = chartx.value[ix];
-            //text.setAttribute("transform","rotate(270 19,150)");
-            svg.appendChild(text);
-          }
+            plotxAxisBelow(svg,lpad,colpad,jump,ix,height,bpad,chartx);
+            // var text = document.createElementNS(svgns, "text");
+            // text.setAttribute("class","xlabels");
+            // text.setAttribute('x', lpad+colpad+jump*ix);
+            // text.setAttribute('y', (height-bpad)+20);
+            // text.setAttribute('fill', '#000');
+            // text.setAttribute("text-anchor"," middle");
+            // text.textContent = chartx.value[ix];
+            // //text.setAttribute("transform","rotate(270 19,150)");
+            // svg.appendChild(text);
+          }*/
+          plotxAxisAbove(svg,lpad,colpad,jump,ix,height,tpad,chartx);
           
           if(yval[ix] != 22446688)
           {
@@ -753,7 +812,7 @@ function drawColChart(chartsize,chartx,charts,index,no_charts)
 
             xplot[ix] = lpad + jump * ix;
             yplot[ix] = parseInt((height-bpad) - (yval[ix] - charts.cmin) * scale);
-            //data[ix] = title.innerHTML;
+            data[ix] = parseInt(yval[ix]);
           }
           else
             continue;
@@ -778,8 +837,31 @@ function drawColChart(chartsize,chartx,charts,index,no_charts)
   //svg.addEventListener("syncLeave",syncLeaveFunction,false);
 
   //svg.addEventListener("mouseleave",myLeave);
-  //svg.addEventListener("mousemove",myMove);
-  //svg.addEventListener("mouseenter",myEnter);
+
+
+  
+
+  /*var columns = document.getElementsByClassName("column");
+
+    for(var i = 0 ; i < columns.length ; i++)
+    {
+      var colx = Number(columns[i].getBoundingClientRect().left);
+      var coly = Number(columns[i].getBoundingClientRect().top);
+      var colheight = Number(columns[i].getBoundingClientRect().height);
+      var colwidth = Number(columns[i].getBoundingClientRect().width);
+
+      console.log(columns[i] + " x : " + colx + " y : " + coly + " height : " + colheight + " width : " + colwidth);
+
+      if(e.detail.x > colx && e.detail.x < colx+colwidth && e.detail.y > coly)
+      {
+        columns[i].setAttribute("fill", "#d65c5c");
+      }
+      else
+      {
+        columns[i].setAttribute("fill", "#0084ff");
+      }
+      svg.appendChild(columns[i]);
+    }*/
 
   //Div Created
   var myDiv = document.createElement("div");
@@ -792,6 +874,129 @@ function drawColChart(chartsize,chartx,charts,index,no_charts)
   document.getElementById("chart-container").appendChild(svg);
 
   console.log("....................................");
+}
+
+function addingColumnEvent()
+{
+  var columns = document.getElementsByClassName("column");
+  //console.log("column count : " + document.getElementsByClassName("column").length);
+  //var im=0;
+  //var jm=0;
+
+  for(var col of document.getElementsByClassName("column"))
+  {
+    //console.log("outer loop calling : " + im++);
+    col.addEventListener("mouseover",function(){
+
+      var syncColumnEvent = new CustomEvent('syncColumnOver',
+      {
+        'detail': {
+          x : event.clientX,
+          y : event.clientY
+        }
+      });
+    
+      //console.log("inside mouse over event.");
+      //console.log(svglist);
+      for(c of document.getElementsByClassName("column"))
+      {
+        //console.log("inner column count : " + document.getElementsByClassName("column").length);
+        //console.log("inner loop mouse over calling : " + jm++);
+        if(c.getAttribute("x") == event.currentTarget.getAttribute("x"))
+          c.dispatchEvent(syncColumnEvent);
+      }
+    });
+
+
+
+    col.addEventListener("mouseleave",function(){
+
+      var syncColumnLeaveEvent = new CustomEvent('syncColumnLeave',
+      {
+        'detail': {
+            //x : -100,
+            //y : -100
+        }
+      });
+
+      console.log("inside mouse leave event");
+
+      for(c of document.getElementsByClassName("column"))
+      {
+        if(c.getAttribute("x") == event.currentTarget.getAttribute("x"))
+          c.dispatchEvent(syncColumnLeaveEvent);
+      } 
+    });
+    
+
+
+    col.addEventListener("syncColumnOver", function(e){
+
+      e.currentTarget.style.fill = "#d65c5c";
+
+      var svgns = "http://www.w3.org/2000/svg";
+
+console.log("Current target : ", e.currentTarget.getBBox().y);
+      var rect = document.createElementNS(svgns, "rect");
+            rect.setAttribute('class','toolrect');
+            rect.setAttribute("id",'toolrect');
+         rect.setAttribute('x', e.currentTarget.getBBox().x + e.currentTarget.getBBox().width/2);
+         rect.setAttribute('y', e.currentTarget.getBBox().y);
+         rect.setAttribute('height', 20);
+         rect.setAttribute('width', 50);
+         rect.setAttribute('fill', '#ffccff');
+         rect.setAttribute("stroke", 'brown');
+         console.log("target : ", e.currentTarget.parentElement);
+            e.currentTarget.parentElement.appendChild(rect);
+
+      var tool = document.createElementNS(svgns, "text");
+            tool.setAttribute('class','tooltext');
+            tool.setAttribute("id",'tooltext');
+         tool.setAttribute('x', e.currentTarget.getBBox().x + e.currentTarget.getBBox().width/2);
+         tool.setAttribute('y', e.currentTarget.getBBox().y);
+         tool.setAttribute('fill', '#ff9f80');
+         tool.setAttribute("text-anchor","end");
+         //console.log("tool tip : ");
+
+         /*var collist = document.getElementsByClassName("column");
+
+         for(var plot = 0 ; plot < plotpoints.length ; plot++)
+          if(plotpoints[plot].svg === e.currentTarget.parentElement)
+            for(var col = 0 ; col < collist.length ; col++)
+              if(e.currentTarget.getBBox().x == collist[col].getBBox().x)
+              {
+              tool.textContent = plotpoints[plot].data[col];
+              console.log("y text : " + plotpoints[plot].data[col]);
+            }
+         //plotpoints[i].svg.appendChild(text);
+         //console.log("target : ", e.currentTarget.parentElement);*/
+            e.currentTarget.parentElement.appendChild(rect);
+            e.currentTarget.parentElement.appendChild(tool);
+
+
+
+      /*var box = document.createElement("div");
+      box.setAttribute("class","boxtip");
+      box.setAttribute("id","boxtip");
+      box.innerHTML = "Hi";
+      box.style.left = e.detail.x;
+      box.style.top = e.detail.y;
+      box.style.backgroundColor = "#ffcccc";
+      //console.log("target : ", e.target.parentElement);
+      e.target.parentElement.appendChild(box);*/
+    });
+
+    col.addEventListener("syncColumnLeave", function(e){
+
+      e.currentTarget.style.fill = "#0084ff";
+
+      var box = document.getElementById("toolrect");
+      e.currentTarget.parentElement.removeChild(box);
+
+      var text = document.getElementById("tooltext");
+      e.currentTarget.parentElement.removeChild(text);
+    });
+  }
 }
 
 function cal(charty)
@@ -890,7 +1095,7 @@ function loadChartData()
 
           //Chart caption and sub caption
           var chartnames = new chartDetails(json.chartCaption,json.chartSubCaption);
-          var chartsize = new chartDimension(json.chartHeight,json.chartWidth);          
+          var chartsize = new chartDimension(json.type,json.chartHeight,json.chartWidth);          
 
           //Chart details of x-axis
           var temp = [];
@@ -949,14 +1154,30 @@ function loadChartData()
           for(i = 0 ; i < no_charts ; i++)
           {
                   cal(charts[i]);
-                  //drawChart(chartsize,chartx,charts[i],i,no_charts);
-                  drawColChart(chartsize,chartx,charts[i],i,no_charts);
+                  if(chartsize.type == "line")
+                    drawChart(chartsize,chartx,charts[i],i,no_charts);
+                  if(chartsize.type == "col")
+                    drawColChart(chartsize,chartx,charts[i],i,no_charts);
           }
+          addingColumnEvent();
+          placexAxis();
 
           //document.getElementById("cap").addEventListener("mousemove",myMove);
           //document.getElementById("cap").addEventListener("mouseleave",myLeave);
         }
     }
+}
+
+function placexAxis()
+{
+  var svglist = document.getElementsByClassName("chartsvg");
+  var coox = [];
+  var i=0;
+
+  for(var svg of svglist)
+    coox[i++] = svg.getB;
+
+  console.log(coox);
 }
 
 xmlhttp.open('GET','structure.json',true);

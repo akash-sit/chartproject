@@ -10,6 +10,12 @@
 }
 
 
+.chartsvg {
+      margin-right: 20px;
+      margin-bottom: 50px;
+}
+
+
 .xaxis {
 
       stroke: #737373;
@@ -98,4 +104,9 @@
 
 .column:hover {
         fill: #d65c5c;
+}
+
+
+.boxtip {
+      visibility: visible;
 }
